@@ -95,6 +95,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
     parser.add_argument("--dataset_path", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
+    parser.add_argument("--main_folder_name", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
     return parser.parse_args()
 
 
@@ -102,8 +103,11 @@ def main():
     args = parse_args()
 
     # load in our images that we need to get masks for
-    dataset_folder = '/content/drive/MyDrive/annotation_data/jiggins/jiggins_data_256_256/*' #args.dataset_path + '/*'
+    dataset_folder = args.dataset_path + '/*' #'/content/drive/MyDrive/annotation_data/jiggins/jiggins_data_256_256/*'
     dataset_images, image_filepaths = load_dataset_images(dataset_folder)
+
+    #main folder name is used to create a new directory under a modified version of the original folder name
+    folder_name = args.folder_name
 
     # Load in trained model
     model = get_model(n_classes=11, img_height=256, img_width=256, img_channels=1)
@@ -144,7 +148,7 @@ def main():
         predicted_img = np.argmax(prediction, axis=3)[0,:,:]
 
         #save the entire predicted mask
-        mask_path = fp.replace('jiggins', 'jiggins_masks')
+        mask_path = fp.replace(folder_name, f'{folder_name}_masks')
         mask_path = mask_path.replace('.png', '_mask.png')
         mask_fn = "/" + mask_path.split('/')[-1]
         mask_folder = mask_path.replace(mask_fn, "")
@@ -166,35 +170,35 @@ def main():
             not_pred_class = classes[not_pred_val]
             dataset_segmented.loc[i, not_pred_class] = 0 #class does not exist in segmentation mask
 
-        #crop + extract any existing wings
-        cropped_wings, cropped_wings_resized = save_segmented_wings(test_img, predicted_img)
+        i += 1
+        
+        # #crop + extract any existing wings
+        # cropped_wings, cropped_wings_resized = save_segmented_wings(test_img, predicted_img)
 
-        #save each individual wing with a traceable name to the source image 
-        #(ex. erato_0001_wing_2.png denotes the image contains the right forewing for erato_0001.png)
-        for wing_idx in cropped_wings.keys():
-            cropped_wing = cropped_wings[wing_idx]
-            cropped_wing_resized = cropped_wings_resized[wing_idx]
+        # #save each individual wing with a traceable name to the source image 
+        # #(ex. erato_0001_wing_2.png denotes the image contains the right forewing for erato_0001.png)
+        # for wing_idx in cropped_wings.keys():
+        #     cropped_wing = cropped_wings[wing_idx]
+        #     cropped_wing_resized = cropped_wings_resized[wing_idx]
 
-            #create path to save the non-resized wing crops to
-            cropped_wing_path = fp.replace('/jiggins/', '/cropped_wings/jiggins/').replace('.png', f'_wing_{wing_idx}.png')
-            n = "/" + cropped_wing_path.split('/')[-1]
-            cropped_wing_folder = cropped_wing_path.replace(n, "")
-            os.makedirs(cropped_wing_folder, exist_ok=True)
+        #     #create path to save the non-resized wing crops to
+        #     cropped_wing_path = fp.replace('/jiggins/', '/cropped_wings/jiggins/').replace('.png', f'_wing_{wing_idx}.png')
+        #     n = "/" + cropped_wing_path.split('/')[-1]
+        #     cropped_wing_folder = cropped_wing_path.replace(n, "")
+        #     os.makedirs(cropped_wing_folder, exist_ok=True)
             
-            #create path to save the resized wing crops to
-            resized_cropped_wing_path = fp.replace('/jiggins/', '/cropped_wings_256_256/jiggins/').replace('.png', f'_wing_{wing_idx}.png')
-            r = "/" + resized_cropped_wing_path.split('/')[-1]
-            resized_cropped_wing_folder = resized_cropped_wing_path.replace(r, "")
-            os.makedirs(resized_cropped_wing_folder, exist_ok=True)
+        #     #create path to save the resized wing crops to
+        #     resized_cropped_wing_path = fp.replace('/jiggins/', '/cropped_wings_256_256/jiggins/').replace('.png', f'_wing_{wing_idx}.png')
+        #     r = "/" + resized_cropped_wing_path.split('/')[-1]
+        #     resized_cropped_wing_folder = resized_cropped_wing_path.replace(r, "")
+        #     os.makedirs(resized_cropped_wing_folder, exist_ok=True)
 
-            #save the non-resized and the resized cropped wings to their respective dirs
-            try:
-                plt.imsave(cropped_wing_path, cropped_wing)
-                plt.imsave(resized_cropped_wing_path, cropped_wing_resized)
-            except FileNotFoundError:
-                errors.append(cropped_wing_path)
-
-            i += 1
+        #     #save the non-resized and the resized cropped wings to their respective dirs
+        #     try:
+        #         plt.imsave(cropped_wing_path, cropped_wing)
+        #         plt.imsave(resized_cropped_wing_path, cropped_wing_resized)
+        #     except FileNotFoundError:
+        #         errors.append(cropped_wing_path)
 
     return
 
