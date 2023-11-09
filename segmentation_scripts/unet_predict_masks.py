@@ -9,7 +9,6 @@ import argparse
 
 from train_unet import get_model
 
-
 def load_dataset_images(dataset_path):
     '''Load in actual images from filepaths from all subfolders in the provided dataset_path'''
     #file types
@@ -109,7 +108,7 @@ def main():
     dataset_images, image_filepaths = load_dataset_images(dataset_folder)
 
     #main folder name is used to create a new directory under a modified version of the original folder name
-    folder_name = args.folder_name
+    folder_name = args.main_folder_name
 
     # Load in trained model
     model = get_model(n_classes=11, img_height=256, img_width=256, img_channels=1)
