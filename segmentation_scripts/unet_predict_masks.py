@@ -38,58 +38,6 @@ def load_dataset_images(dataset_path):
     return dataset_images, image_filepaths
 
 
-def save_segmented_wings(test_img, predicted_img, cropped_dim=(256, 256)):
-  '''Goes through the predicted mask of an image and crops down the original image to each of the 4 available wings
-  based on the predicted segmented wing mask'''
-
-  cropped_wings = dict()
-  cropped_wings_resized = dict()
-
-  #only search for masks belonging to right/left hindwings and forewings
-  for wing_class in [2,3,4,5]:
-    img = test_img[:,:, 0]
-    mask = np.asarray(predicted_img==wing_class, dtype=int) #0s and 1s
-
-    y_coords = []
-    x_coords = []
-    for y in range(0, mask.shape[0]):
-      for x in range(0, mask.shape[1]):
-        if mask[y,x]==1:
-          x_coords.append(x)
-          y_coords.append(y)
-
-    #our mask is empty - therefore no existing mask for that wing
-    if len(x_coords) == 0 and len(y_coords) == 0:
-      continue
-
-    #sort the x and y coordinates of our segmented wing mask to crop accordingly
-    x_coords.sort()
-    y_coords.sort()
-
-    miny = y_coords[0]
-    maxy = y_coords[-1]
-    minx = x_coords[0]
-    maxx= x_coords[-1]
-
-    #get boundaries of segmented mask with some extra room
-    if y_coords[0] > 10 and x_coords[0] > 10:
-      miny -= 10
-      maxy += 10
-      minx -= 10
-      maxx += 10
-
-    #crop image down to segmented wings
-    cropped_result = img[miny:maxy, minx:maxx]
-    cropped_result_resized = cv2.resize(cropped_result, cropped_dim, interpolation=cv2.INTER_CUBIC) #resize to provided dimensions
-
-    #store results in dictionary {wing_class: cropped_image}
-    cropped_wings[wing_class] = cropped_result 
-    cropped_wings_resized[wing_class] = cropped_result_resized #resize to provided dimensions
-
-  #return both original sized and resized cropped wings *just in case*
-  return cropped_wings, cropped_wings_resized
-
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
