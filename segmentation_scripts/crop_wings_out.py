@@ -6,8 +6,6 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import argparse
 
-from train_unet import get_model
-
 
 def load_dataset_images(dataset_path):
     '''Load in actual images from filepaths from all subfolders in the provided dataset_path'''
