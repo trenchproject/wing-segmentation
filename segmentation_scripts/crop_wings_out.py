@@ -1,4 +1,3 @@
-from keras.utils import normalize
 import os
 import glob
 import cv2
@@ -39,7 +38,7 @@ def load_dataset_images(dataset_path):
     return dataset_images, image_filepaths
 
 
-def save_segmented_wings(test_img, predicted_img, cropped_dim=(256, 256)):
+def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
   '''Goes through the predicted mask of an image and crops down the original image to each of the 4 available wings
   based on the predicted segmented wing mask'''
 
@@ -48,7 +47,7 @@ def save_segmented_wings(test_img, predicted_img, cropped_dim=(256, 256)):
 
   #only search for masks belonging to right/left hindwings and forewings
   for wing_class in [2,3,4,5]:
-    img = test_img[:,:, 0]
+    img = test_img #[:,:, 0]
     mask = np.asarray(predicted_img==wing_class, dtype=int) #0s and 1s
 
     y_coords = []
@@ -93,30 +92,23 @@ def save_segmented_wings(test_img, predicted_img, cropped_dim=(256, 256)):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
-    parser.add_argument("--dataset_path", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
-    parser.add_argument("--main_folder_name", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
+    parser.add_argument("--image_dataset_path", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
+    parser.add_argument("--mask_dataset_path", required=True, help="Directory containing masks for images.")
+    parser.add_argument("--output_folder", required=True, help="Directory where we should save the cropped wings to.")
+    
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
 
-    # load in our images that we need to get masks for
-    dataset_folder = args.dataset_path + '/*' #'/content/drive/MyDrive/annotation_data/jiggins/jiggins_data_256_256/*'
-    dataset_images, image_filepaths = load_dataset_images(dataset_folder)
+    # load in our images
+    image_dataset_folder = args.image_dataset_path + '/*'
+    dataset_images, image_filepaths = load_dataset_images(image_dataset_folder)
 
-    #main folder name is used to create a new directory under a modified version of the original folder name
-    folder_name = args.folder_name
-
-    # Load in trained model
-    model = get_model(n_classes=11, img_height=256, img_width=256, img_channels=1)
-    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    model.load_weights(args.model_save_path)
-
-    #preprocess images
-    normalized_dataset_images = np.expand_dims(dataset_images, axis=3)
-    normalized_dataset_images = normalize(normalized_dataset_images, axis=1)
+    #load in our masks
+    mask_dataset_folder = args.mask_dataset_path + '/*'
+    dataset_masks, mask_filepaths = load_dataset_images(mask_dataset_folder)
     
     #create a dataframe to store all metadata associated with predicted masks
     classes = {0: 'background',
@@ -131,75 +123,32 @@ def main():
             9: 'color_card',
             10: 'body'}
     
-    dataset_segmented = pd.DataFrame(columns = ['image', 'background', 
-                                            'generic', 'right_forewing', 
-                                            'left_forewing', 'right_hindwing', 
-                                            'left_hindwing', 'ruler', 'white_balance', 
-                                            'label', 'color_card', 'body', 'damaged'])
-    
 
-    i = 0 #dataframe indexer
     errors = []
-    for test_img, fp in zip(normalized_dataset_images, image_filepaths):
-        #use the unet model to predict the mask on the image
-        test_img_norm = test_img[:,:,0][:,:,None]
-        test_image_input = np.expand_dims(test_img_norm, 0)
-        prediction = (model.predict(test_image_input))
-        predicted_img = np.argmax(prediction, axis=3)[0,:,:]
+    for (image, mask), fp in zip(zip(dataset_images[0:1], dataset_masks[0:1]), image_filepaths[0:1]):   
+        #crop + extract any existing wings
+        cropped_wings, cropped_wings_resized = crop_wings(image, mask)
 
-        #save the entire predicted mask
-        mask_path = fp.replace(folder_name, f'{folder_name}_masks')
-        mask_path = mask_path.replace('.png', '_mask.png')
-        mask_fn = "/" + mask_path.split('/')[-1]
-        mask_folder = mask_path.replace(mask_fn, "")
-        os.makedirs(mask_folder, exist_ok=True)
-        plt.imsave(mask_path, predicted_img)
+        #save each individual wing with a traceable name to the source image 
+        #(ex. erato_0001_wing_2.png denotes the image contains the right forewing for erato_0001.png)
+        for wing_idx in cropped_wings.keys():
+            cropped_wing = cropped_wings[wing_idx]
+            cropped_wing_resized = cropped_wings_resized[wing_idx]
 
-        #enter relevant segmentation data for the image in our dataframe
-        classes_in_image = np.unique(predicted_img)
-        classes_not_in_image = set(classes.keys()) ^ set(classes_in_image)
-        dataset_segmented.loc[i, 'image'] = fp
-        
-        #enter `1` for all segmentation classes that appear in our mask
-        for val in classes_in_image:
-            pred_class = classes[val]
-            dataset_segmented.loc[i, pred_class] = 1 #class exists in segmentation mask
+            #create path to save the resized wing crops to
+            new_folder = fp.replace(image_dataset_folder.replace("*", ""), args.output_folder + '/')
+            resized_cropped_wing_path = new_folder.replace('.png', f'_wing_{wing_idx}.png')
+            r = "/" + resized_cropped_wing_path.split('/')[-1]
+            resized_cropped_wing_folder = resized_cropped_wing_path.replace(r, "")
+            os.makedirs(resized_cropped_wing_folder, exist_ok=True)
 
-        #enter `0` for all segmentation classes that were not predicted
-        for not_pred_val in classes_not_in_image:
-            not_pred_class = classes[not_pred_val]
-            dataset_segmented.loc[i, not_pred_class] = 0 #class does not exist in segmentation mask
-
-        i += 1
-        
-        # #crop + extract any existing wings
-        # cropped_wings, cropped_wings_resized = save_segmented_wings(test_img, predicted_img)
-
-        # #save each individual wing with a traceable name to the source image 
-        # #(ex. erato_0001_wing_2.png denotes the image contains the right forewing for erato_0001.png)
-        # for wing_idx in cropped_wings.keys():
-        #     cropped_wing = cropped_wings[wing_idx]
-        #     cropped_wing_resized = cropped_wings_resized[wing_idx]
-
-        #     #create path to save the non-resized wing crops to
-        #     cropped_wing_path = fp.replace('/jiggins/', '/cropped_wings/jiggins/').replace('.png', f'_wing_{wing_idx}.png')
-        #     n = "/" + cropped_wing_path.split('/')[-1]
-        #     cropped_wing_folder = cropped_wing_path.replace(n, "")
-        #     os.makedirs(cropped_wing_folder, exist_ok=True)
-            
-        #     #create path to save the resized wing crops to
-        #     resized_cropped_wing_path = fp.replace('/jiggins/', '/cropped_wings_256_256/jiggins/').replace('.png', f'_wing_{wing_idx}.png')
-        #     r = "/" + resized_cropped_wing_path.split('/')[-1]
-        #     resized_cropped_wing_folder = resized_cropped_wing_path.replace(r, "")
-        #     os.makedirs(resized_cropped_wing_folder, exist_ok=True)
-
-        #     #save the non-resized and the resized cropped wings to their respective dirs
-        #     try:
-        #         plt.imsave(cropped_wing_path, cropped_wing)
-        #         plt.imsave(resized_cropped_wing_path, cropped_wing_resized)
-        #     except FileNotFoundError:
-        #         errors.append(cropped_wing_path)
-
+            #save the resized cropped wings to their path
+            try:
+                cv2.imwrite(resized_cropped_wing_path, cropped_wing_resized)
+            except FileNotFoundError:
+                errors.append(resized_cropped_wing_path)
+    
+    print('The following images could encountered errors during cropping/resizing:', errors)
     return
 
 

@@ -6,6 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
 import argparse
+from PIL import Image
 
 from train_unet import get_model
 
@@ -95,6 +96,7 @@ def main():
         test_image_input = np.expand_dims(test_img_norm, 0)
         prediction = (model.predict(test_image_input))
         predicted_img = np.argmax(prediction, axis=3)[0,:,:]
+        print('MASK VALUES:', np.unique(predicted_img))
 
         #save the entire predicted mask under its own folder
         mask_path = fp.replace(folder_name, f'{folder_name}_masks')
@@ -102,7 +104,9 @@ def main():
         mask_fn = "/" + mask_path.split('/')[-1]
         mask_folder = mask_path.replace(mask_fn, "")
         os.makedirs(mask_folder, exist_ok=True)
-        plt.imsave(mask_path, predicted_img)
+        
+        #save mask with cv2 to preserve pixel categories
+        cv2.imwrite(mask_path, predicted_img)
 
         #enter relevant segmentation data for the image in our dataframe
         classes_in_image = np.unique(predicted_img)
