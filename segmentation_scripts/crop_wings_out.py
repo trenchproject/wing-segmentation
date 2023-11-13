@@ -125,7 +125,7 @@ def main():
     
 
     errors = []
-    for (image, mask), fp in zip(zip(dataset_images[0:1], dataset_masks[0:1]), image_filepaths[0:1]):   
+    for (image, mask), fp in zip(zip(dataset_images, dataset_masks), image_filepaths):   
         #crop + extract any existing wings
         cropped_wings, cropped_wings_resized = crop_wings(image, mask)
 
