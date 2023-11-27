@@ -70,7 +70,7 @@ Arguments explained:
 
 `--main_folder_name` is ONLY the name of the source folder containing your resized images, not the full path. (exmaple: jiggins_256_256) 
 
-`segmentation_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory as this script.)
+`--segmentation_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory as this script.)
 
 ## 3. Using Segmentation Masks to Extract Wings from Images
 
@@ -79,3 +79,12 @@ After obtaining masks for our images, we can crop out the forewings and hindwing
 ```
 python3 crop_wings_out.py --image_dataset_path /path/to/image/dataset --mask_dataset_path /path/to/segmentation/masks --output_folder /path/to/folder/where/we/store/cropped/wing/results
 ```
+
+The cropped wing images will be named in this structure: `<original name>_wing_#.png`
+
+The number following `wing` can be mapped as follows:
+
+`2`: right forewing
+`3`: left forewing
+`4`: right hindwing
+`5`: left hindwing
