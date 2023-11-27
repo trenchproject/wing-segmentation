@@ -77,7 +77,7 @@ Arguments explained:
 After obtaining masks for our images, we can crop out the forewings and hindwings by running the following `crop_wings_out.py` script in the `segmentation_scripts` folder:
 
 ```
-python3 crop_wings_out.py --image_dataset_path /path/to/image/dataset --mask_dataset_path /path/to/segmentation/masks --output_folder /path/to/folder/where/we/store/cropped/wing/results
+python3 crop_wings_out.py --image_dataset_path /path/to/resized256x256/image/dataset --mask_dataset_path /path/to/segmentation/masks --output_folder /path/to/folder/where/we/store/cropped/wing/results
 ```
 
 The cropped wing images will be named in this structure: `<original name>_wing_#.png`
