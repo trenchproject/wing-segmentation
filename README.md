@@ -85,6 +85,9 @@ The cropped wing images will be named in this structure: `<original name>_wing_#
 The number following `wing` can be mapped as follows:
 
 `2`: right forewing
+
 `3`: left forewing
+
 `4`: right hindwing
+
 `5`: left hindwing
