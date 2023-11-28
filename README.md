@@ -91,3 +91,20 @@ The number following `wing` can be mapped as follows:
 `4`: right hindwing
 
 `5`: left hindwing
+
+## 4. Creating seperate wing folders and flipping wings
+
+The `landmark_scripts` folder contains python scripts to sort cropped wings into wing folders and flip images horizontally if needed.
+
+Commands:
+
+**Create wing folders**
+```
+python3 landmark_scripts/create_wing_folders.py --input_dir /path/to/folder/where/we/store/cropped/wing/results
+
+```
+
+**Flip images**
+```
+python3 landmark_scripts/flip_images_horizontally.py --input_dir /path/to/wing/category/folder
+```
