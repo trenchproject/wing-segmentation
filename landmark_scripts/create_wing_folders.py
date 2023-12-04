@@ -18,21 +18,36 @@ CLASSES = {0: 'background',
         10: 'body'}
 
 
+def get_wing_path(main_folder, img_path):
+    #create the new path to save the image under its wing folder
+    wing_class = int(img_path.split('_wing_')[-1].split('.png')[0])
+    wing_folder = CLASSES[wing_class]
+    image_name = img_path.split('_wing_')[0].split('/')[-1]
+    wing_path = f"{main_folder}_{wing_folder}/{image_name}.png"
+    print('wing path:', wing_path)
+    return wing_path
+
 def write_images_to_wing_folders(main_folder):
     #go through each species subfolder
     for directory_path in glob.glob(main_folder + '/*'):
-        #go through each image in the current species subfolder
-        for img_path in glob.glob(os.path.join(directory_path, "*.png")):
+        if os.path.isfile(directory_path):
+            img_path = directory_path
 
-            #create the new path to save the image under its wing folder
-            wing_class = int(img_path.split('_wing_')[-1].split('.png')[0])
-            wing_folder = CLASSES[wing_class]
-            image_name = img_path.split('_wing_')[0].split('/')[-1]
-            wing_path = f"{main_folder}_{wing_folder}/{image_name}.png"
-            print('wing path:', wing_path)
-            
+            #get new path where the cropped wing will be stored
+            wing_path = get_wing_path(main_folder, img_path)
+
             #copy the img to its new wing folder
             shutil.copy(img_path, wing_path)
+
+        elif os.path.isdir(directory_path):
+            #go through each image in the current species subfolder
+            for img_path in glob.glob(os.path.join(directory_path, "*.png")):
+                
+                #get new path where the cropped wing will be stored
+                wing_path = get_wing_path(main_folder, img_path)
+                
+                #copy the img to its new wing folder
+                shutil.copy(img_path, wing_path)
 
     return
 
