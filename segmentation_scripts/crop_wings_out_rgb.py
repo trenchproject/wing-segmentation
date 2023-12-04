@@ -15,10 +15,12 @@ def load_dataset_images(dataset_path, color_option=0):
     #Get training images and mask paths then sort
     image_filepaths = []
     for directory_path in glob.glob(dataset_path):
-        print(directory_path)
-        for ext in file_extensions:
-            for img_path in glob.glob(os.path.join(directory_path, f"*.{ext}")):
-                image_filepaths.append(img_path)
+        if os.path.isfile(directory_path):
+            image_filepaths.append(directory_path)
+        elif os.path.isdir(directory_path):
+            for ext in file_extensions:
+                for img_path in glob.glob(os.path.join(directory_path, f"*.{ext}")):
+                    image_filepaths.append(img_path)
 
 
     #sort image and mask fps to ensure we have the same order to index
