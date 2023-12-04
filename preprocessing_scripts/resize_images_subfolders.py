@@ -7,7 +7,7 @@ import os
 
 def resize_images(dataset_path, resized_image_folder, main_folder_name, file_extensions=['.jpg'], image_size=(256, 256)):
     #create a new folder to save resized images to
-    os.makedirs(resized_image_folder, exist_ok=True)
+    os.makedirs(resized_image_folder.replace("*", ""), exist_ok=True)
 
     print('starting...')
     #begin resizing
@@ -16,7 +16,7 @@ def resize_images(dataset_path, resized_image_folder, main_folder_name, file_ext
         print('FOLDER', species_folder_path)
         for extension in file_extensions:
             dir = species_folder_path + f"/*.{extension}"
-            os.makedirs(species_folder_path.replace(main_folder_name, f'{main_folder_name}_256_256'), exist_ok=True) #make sure the save dir exists
+            os.makedirs(species_folder_path.replace(main_folder_name, f'{main_folder_name}_{image_size[0]}_{image_size[1]}'), exist_ok=True) #make sure the save dir exists
             for filename in glob.glob(dir): #os.path.join(species_folder_path, f"/*.{extension}")
 
                 try:
@@ -24,7 +24,7 @@ def resize_images(dataset_path, resized_image_folder, main_folder_name, file_ext
                     image = np.array(image) #convert to numpy to resize
                     image = cv2.resize(image, image_size, interpolation=cv2.INTER_AREA)
 
-                    save_filename = filename.replace(main_folder_name, f'{main_folder_name}_256_256')
+                    save_filename = filename.replace(main_folder_name, f'{main_folder_name}_{image_size[0]}_{image_size[1]}')
                     save_filename = save_filename.replace(save_filename.split('.')[-1], 'png')
                     print(save_filename)
 
