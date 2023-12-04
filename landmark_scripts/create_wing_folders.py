@@ -3,6 +3,7 @@ import glob
 import cv2
 import matplotlib.pyplot as plt
 import argparse
+import shutil
 
 CLASSES = {0: 'background',
         1: 'generic',
@@ -20,7 +21,6 @@ CLASSES = {0: 'background',
 def write_images_to_wing_folders(main_folder):
     #go through each species subfolder
     for directory_path in glob.glob(main_folder + '/*'):
-        print(directory_path)
         #go through each image in the current species subfolder
         for img_path in glob.glob(os.path.join(directory_path, "*.png")):
 
@@ -31,11 +31,9 @@ def write_images_to_wing_folders(main_folder):
             wing_path = f"{main_folder}_{wing_folder}/{image_name}.png"
             print('wing path:', wing_path)
             
-            #load the actual image file
-            img = cv2.imread(img_path, 0)
+            #copy the img to its new wing folder
+            shutil.copy(img_path, wing_path)
 
-            #save the actual image in the new location
-            saved_img = cv2.imwrite(wing_path, img)
     return
 
 def parse_args():
