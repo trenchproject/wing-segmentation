@@ -3,9 +3,9 @@ import glob
 import cv2
 import matplotlib.pyplot as plt
 import argparse
+import shutil
 
-
-def flip_images(source_folder, dest_folder):
+def flip_images(source_folder, dest_folder, color_option=1):
     #go through each species subfolder
     file_extensions = ["jpg", "JPG", "jpeg", "png"]
     for ext in file_extensions:
@@ -16,13 +16,14 @@ def flip_images(source_folder, dest_folder):
             print(wing_path)
             
             #load the actual image file
-            img = cv2.imread(img_path, 0)
+            img = cv2.imread(img_path, color_option)
 
             #flip the image
             img_h = cv2.flip(img, 1)
 
             #save the flipped image in the new location
             saved_img = cv2.imwrite(wing_path, img_h)
+
     return
 
 
