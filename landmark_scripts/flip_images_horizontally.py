@@ -7,20 +7,22 @@ import argparse
 
 def flip_images(source_folder, dest_folder):
     #go through each species subfolder
-    for img_path in glob.glob(os.path.join(source_folder, "*.png")):
+    file_extensions = ["jpg", "JPG", "jpeg", "png"]
+    for ext in file_extensions:
+        for img_path in glob.glob(os.path.join(source_folder, f"*.{ext}")):
 
-        #create the new path to save the image under its wing folder
-        wing_path = img_path.replace(source_folder, dest_folder)
-        print(wing_path)
-        
-        #load the actual image file
-        img = cv2.imread(img_path, 0)
+            #create the new path to save the image under its wing folder
+            wing_path = img_path.replace(source_folder, dest_folder)
+            print(wing_path)
+            
+            #load the actual image file
+            img = cv2.imread(img_path, 0)
 
-        #flip the image
-        img_h = cv2.flip(img, 1)
+            #flip the image
+            img_h = cv2.flip(img, 1)
 
-        #save the flipped image in the new location
-        saved_img = cv2.imwrite(wing_path, img_h)
+            #save the flipped image in the new location
+            saved_img = cv2.imwrite(wing_path, img_h)
     return
 
 
