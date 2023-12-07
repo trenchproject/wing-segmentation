@@ -52,7 +52,7 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
   cropped_wings_resized = dict()
 
   #only search for masks belonging to right/left hindwings and forewings
-  for wing_class in [2,3,4,5]:
+  for wing_class in [1,2,3,4]: #[2,3,4,5]:
     img = test_img #[:,:, 0]
     mask = np.asarray(predicted_img==wing_class, dtype=int) #0s and 1s
 
@@ -143,16 +143,20 @@ def main():
 
             #create path to save the resized wing crops to
             new_folder = fp.replace(image_dataset_folder.replace("*", ""), args.output_folder + '/')
-            resized_cropped_wing_path = new_folder.replace('.png', f'_wing_{wing_idx}.png')
-            r = "/" + resized_cropped_wing_path.split('/')[-1]
-            resized_cropped_wing_folder = resized_cropped_wing_path.replace(r, "")
-            os.makedirs(resized_cropped_wing_folder, exist_ok=True)
+            ext = new_folder.split('.')[-1]
+            cropped_wing_path = new_folder.replace(f'.{ext}', f'_wing_{wing_idx}.png')
+            r = "/" + cropped_wing_path.split('/')[-1]
+            cropped_wing_folder = cropped_wing_path.replace(r, "")
+            os.makedirs(cropped_wing_folder, exist_ok=True)
 
             #save the cropped wings to their path (these images will be resized to cropped_dim)
             try:
-                cv2.imwrite(resized_cropped_wing_path, cv2.cvtColor(cropped_wing_resized, cv2.COLOR_RGB2BGR))
+                # cv2.imwrite(cropped_wing_path, cv2.cvtColor(cropped_wing_resized, cv2.COLOR_RGB2BGR))
+
+                ## TEMPORARY: SAVE THE ORIGINAL SIZE (not 256x256)
+                cv2.imwrite(cropped_wing_path, cv2.cvtColor(cropped_wing, cv2.COLOR_RGB2BGR))
             except FileNotFoundError:
-                errors.append(resized_cropped_wing_path)
+                errors.append(cropped_wing_path)
     
     print('The following images could encountered errors during cropping/resizing:', errors)
     return
