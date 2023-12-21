@@ -7,6 +7,7 @@ import argparse
 import matplotlib.pyplot as plt
 import cv2
 from ultralytics import YOLO
+from skimage.draw import polygon2mask
 
 
 def load_dataset_images(dataset_path, color_option=0):
@@ -46,20 +47,62 @@ def load_dataset_images(dataset_path, color_option=0):
     return dataset_images, image_filepaths
 
 
-def get_yolo_model():
+def get_yolo_model(checkpoint_path):
     '''Download trained yolo v8 model from huggingface and load in weights'''
-
-
+    model = YOLO(checkpoint_path)
     return model
 
 
+def get_mask(r):
+    #get the original image
+    image = cv2.cvtColor(r.orig_img, cv2.COLOR_BGR2RGB)
+
+    #create an empty array to add our masks onto
+    segmented_img_full = np.zeros(image[:,:,0].shape, dtype='uint8')
+
+    #get the xyn coordinates and ids of the predicted masks
+    predicted_class_ids = r.boxes.cls.tolist()
+    xyn_masks = r.masks.xyn
+
+    #build mask for the image
+    for i, class_id in enumerate(predicted_class_ids):
+        print(class_id)
+        #get coordinates of polygon
+        coords = xyn_masks[i]
+        
+        #polygon2mask expects coordinates in y,x order so reorder
+        #since we're using the normalized xy coordinates, we also multiply x and y 
+        #by the target image's width and height so that our masks scale and fit the target img
+        coords_adj = [[y * image.shape[0], x * image.shape[1]] for [x,y] in coords] 
+
+        #build mask from normalized coords
+        polygon = np.array(coords_adj)
+        mask = polygon2mask(image[:,:,0].shape, polygon).astype("uint8")
+
+        #assign the class id as the pixel value for the segment such that
+        #instead of 1s and 0s, it'll be class_id's and 0's
+        mask *= int(class_id) 
+
+        #layer the current segment into one collective mask
+        segmented_img_full += mask
+
+        for y in range(0, segmented_img_full.shape[0]):
+            for x in range(0, segmented_img_full.shape[1]):
+                #if there masks overlap at y,x
+                if mask[y, x] != 0 and segmented_img_full[y,x] != 0:
+                    #replace that value to avoid pixel values not in our id2label mapping
+                    segmented_img_full[y,x] = mask[y,x]
+        
+    return segmented_img_full
+        
+
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
     parser.add_argument("--dataset_path", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
     parser.add_argument("--main_folder_name", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
     parser.add_argument("--segmentation_csv", required=True, default = 'segmentation_info.csv', help="Path to the csv created containing \
                         which segmentation classes are present in each image's predicted mask.")
+    # parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
     return parser.parse_args()
 
 
@@ -74,7 +117,8 @@ def main():
     folder_name = args.main_folder_name
 
     # Get Model
-    model = get_yolo_model()
+    ckpt='/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-segmentation/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt'
+    model = get_yolo_model(ckpt)
 
     # Create a dataframe to store all metadata associated with predicted masks
     classes = {0: 'background',
@@ -89,10 +133,10 @@ def main():
             9: 'body'}
     
     dataset_segmented = pd.DataFrame(columns = ['image', 'background', 
-                                            'generic', 'right_forewing', 
-                                            'left_forewing', 'right_hindwing', 
-                                            'left_hindwing', 'ruler', 'white_balance', 
-                                            'label', 'color_card', 'body', 'damaged'])
+                                            'right_forewing', 'left_forewing', 
+                                            'right_hindwing', 'left_hindwing', 
+                                            'ruler', 'white_balance', 
+                                            'label', 'color_card', 'body'])
     
 
     # Leverage GPU if available
@@ -107,6 +151,38 @@ def main():
         print('__CUDA Device Total Memory [GB]:',torch.cuda.get_device_properties(0).total_memory/1e9)
 
     # Predict masks on all our images
+    i=0
+    results = model.predict(image_filepaths, verbose=False)
+    for r, fp in zip(results, image_filepaths):
+        #get the mask with category id's as pixel values
+        mask = get_mask(r) 
+        
+        #save the entire predicted mask under its own folder
+        mask_path = fp.replace(folder_name, f'{folder_name}_masks')
+        mask_path = mask_path.replace('.png', '_mask.png')
+        mask_fn = "/" + mask_path.split('/')[-1]
+        mask_folder = mask_path.replace(mask_fn, "")
+        os.makedirs(mask_folder, exist_ok=True)
+        
+        #save mask with cv2 to preserve pixel categories
+        cv2.imwrite(mask_path, mask)
+
+        #enter relevant segmentation data for the image in our dataframe
+        classes_in_image = np.unique(mask)
+        classes_not_in_image = set(classes.keys()) ^ set(classes_in_image)
+        dataset_segmented.loc[i, 'image'] = fp
+        
+        #enter `1` for all segmentation classes that appear in our mask
+        for val in classes_in_image:
+            pred_class = classes[val]
+            dataset_segmented.loc[i, pred_class] = 1 #class exists in segmentation mask
+
+        #enter `0` for all segmentation classes that were not predicted
+        for not_pred_val in classes_not_in_image:
+            not_pred_class = classes[not_pred_val]
+            dataset_segmented.loc[i, not_pred_class] = 0 #class does not exist in segmentation mask
+
+        i += 1
 
     # Save csv containing information about segmentation masks per each image
     dataset_segmented.to_csv(args.segmentation_csv, index=False)
