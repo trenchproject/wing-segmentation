@@ -10,7 +10,7 @@ import argparse
 def load_dataset_images(dataset_path, color_option=0):
     '''Load in actual images from filepaths from all subfolders in the provided dataset_path'''
     #file types
-    file_extensions = ["png"] #["jpg", "JPG", "jpeg", "png"]
+    file_extensions = ["jpg", "JPG", "jpeg", "png"] #["png"]
 
     #Get training images and mask paths then sort
     image_filepaths = []
@@ -56,6 +56,8 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
     img = test_img #[:,:, 0]
     mask = np.asarray(predicted_img==wing_class, dtype=int) #0s and 1s
 
+    print(f"NP.UNIQUE(MASK): {np.unique(mask)}")
+
     y_coords = []
     x_coords = []
     for y in range(0, mask.shape[0]):
@@ -66,6 +68,7 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
 
     #our mask is empty - therefore no existing mask for that wing
     if len(x_coords) == 0 and len(y_coords) == 0:
+      print("empty mask for wing key:", wing_class)
       continue
 
     #sort the x and y coordinates of our segmented wing mask to crop accordingly
@@ -85,7 +88,9 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
       maxx += 10
 
     #crop image down to segmented wings
+    print(f"cropping img to {miny}:{maxy}, {minx}:{maxx} for wing class {wing_class}")
     cropped_result = img[miny:maxy, minx:maxx, :]
+    print(f"cropped result dim for wing class {wing_class}: {cropped_result.shape}")
     cropped_result_resized = cv2.resize(cropped_result, cropped_dim, interpolation=cv2.INTER_CUBIC) #resize to provided dimensions
 
     #store results in dictionary {wing_class: cropped_image}
@@ -118,21 +123,23 @@ def main():
     
     #create a dataframe to store all metadata associated with predicted masks
     classes = {0: 'background',
-            1: 'generic',
-            2: 'right_forewing',
-            3: 'left_forewing',
-            4: 'right_hindwing',
-            5: 'left_hindwing',
-            6: 'ruler',
-            7: 'white_balance',
-            8: 'label',
-            9: 'color_card',
-            10: 'body'}
+            1: 'right_forewing',
+            2: 'left_forewing',
+            3: 'right_hindwing',
+            4: 'left_hindwing',
+            5: 'ruler',
+            6: 'white_balance',
+            7: 'label',
+            8: 'color_card',
+            9: 'body'}
     
 
     errors = []
     for (image, mask), fp in zip(zip(dataset_images, dataset_masks), image_filepaths):   
         #crop + extract any existing wings
+        print(f"Image shape: {image.shape}")
+        print(f"Mask shape: {mask.shape}\n")
+
         cropped_wings, cropped_wings_resized = crop_wings(image, mask)
 
         #save each individual wing with a traceable name to the source image 

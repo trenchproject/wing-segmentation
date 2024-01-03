@@ -66,7 +66,6 @@ def get_mask(r):
 
     #build mask for the image
     for i, class_id in enumerate(predicted_class_ids):
-        print(class_id)
         #get coordinates of polygon
         coords = xyn_masks[i]
         
@@ -92,15 +91,16 @@ def get_mask(r):
                 if mask[y, x] != 0 and segmented_img_full[y,x] != 0:
                     #replace that value to avoid pixel values not in our id2label mapping
                     segmented_img_full[y,x] = mask[y,x]
-        
+    
+    print(predicted_class_ids)
     return segmented_img_full
         
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset_path", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
-    parser.add_argument("--main_folder_name", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
-    parser.add_argument("--segmentation_csv", required=True, default = 'segmentation_info.csv', help="Path to the csv created containing \
+    parser.add_argument("--dataset", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
+    parser.add_argument("--main_folder", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
+    parser.add_argument("--segmentation_csv", required=False, default = 'segmentation_info.csv', help="Path to the csv created containing \
                         which segmentation classes are present in each image's predicted mask.")
     # parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
     return parser.parse_args()
@@ -110,11 +110,11 @@ def main():
     args = parse_args()
 
     # Load in our images that we need to get masks for
-    dataset_folder = args.dataset_path + '/*' #'/content/drive/MyDrive/annotation_data/jiggins/jiggins_data_256_256/*'
+    dataset_folder = args.dataset + '/*' #'/content/drive/MyDrive/annotation_data/jiggins/jiggins_data_256_256/*'
     dataset_images, image_filepaths = load_dataset_images(dataset_folder)
 
     # Main folder name is used to create a new directory under a modified version of the original folder name
-    folder_name = args.main_folder_name
+    folder_name = args.main_folder
 
     # Get Model
     ckpt='/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-segmentation/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt'
@@ -159,12 +159,14 @@ def main():
         
         #save the entire predicted mask under its own folder
         mask_path = fp.replace(folder_name, f'{folder_name}_masks')
-        mask_path = mask_path.replace('.png', '_mask.png')
+        mask_path = mask_path.replace(f".{fp.split('.')[-1]}", "_mask.png")
+        # mask_path = mask_path.replace('.png', '_mask.png')
         mask_fn = "/" + mask_path.split('/')[-1]
         mask_folder = mask_path.replace(mask_fn, "")
         os.makedirs(mask_folder, exist_ok=True)
         
         #save mask with cv2 to preserve pixel categories
+        print(f"Mask path:{mask_path}")
         cv2.imwrite(mask_path, mask)
 
         #enter relevant segmentation data for the image in our dataframe
