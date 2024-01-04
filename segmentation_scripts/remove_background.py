@@ -64,20 +64,6 @@ def main():
     mask_dataset_folder = args.mask_dataset_path + '/*'
     dataset_masks, mask_filepaths = load_dataset_images(mask_dataset_folder)
     
-    #create a dataframe to store all metadata associated with predicted masks
-    classes = {0: 'background',
-            1: 'generic',
-            2: 'right_forewing',
-            3: 'left_forewing',
-            4: 'right_hindwing',
-            5: 'left_hindwing',
-            6: 'ruler',
-            7: 'white_balance',
-            8: 'label',
-            9: 'color_card',
-            10: 'body'}
-    
-
     errors = []
     for (image, mask), fp in zip(zip(dataset_images, dataset_masks), image_filepaths): 
         #remove background from color image
