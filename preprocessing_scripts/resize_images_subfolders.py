@@ -5,7 +5,7 @@ import cv2
 import glob 
 import os
 
-def resize_images(dataset_path, resized_image_folder, main_folder_name, file_extensions=['.jpg'], image_size=(256, 256)):
+def resize_images(dataset_path, resized_image_folder, main_folder_name, file_extensions, image_size=(256, 256)):
     #create a new folder to save resized images to
     os.makedirs(resized_image_folder.replace("*", ""), exist_ok=True)
 
@@ -48,15 +48,15 @@ def main():
 
     #get arguments from commandline
     args = parse_args() 
-    jiggins_data = args.source + '/*'
-    jiggins_data_resized = args.output + '/*'
+    data = args.source + '/*'
+    data_resized = args.output + '/*'
     image_size = (int(args.resize_dim[0]), int(args.resize_dim[1])) #(256, 256)
     file_extensions = ['jpg', 'JPG', 'png', 'JPEG']
     main_folder_name_to_replace = args.main_source_folder_name
 
     #resize and save images to input dim (ex. (256,256))
     print(f'image_size={image_size}')
-    list_of_failed_resized = resize_images(jiggins_data, jiggins_data_resized, main_folder_name_to_replace, file_extensions, image_size, )
+    list_of_failed_resized = resize_images(data, data_resized, main_folder_name_to_replace, file_extensions, image_size)
 
     print(f"The following files failed to resize: {list_of_failed_resized}")
 
