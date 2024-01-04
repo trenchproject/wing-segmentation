@@ -20,7 +20,6 @@ def resize_images(source_image_folder, resized_image_folder, file_extensions, im
 
             image_name = filename.split("/")[-1] #get rid of everything but the name of the file
             image_name = image_name.split(".")[0] #get rid of the extension
-            print(f"{resized_image_folder}/{image_name}")
             image = Image.fromarray(image) #convert img back to PIL Image to save
             image.save(f"{resized_image_folder}/{image_name}.png") #save as a png image to avoid pixel val changes
     
