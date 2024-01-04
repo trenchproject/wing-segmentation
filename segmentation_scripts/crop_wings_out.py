@@ -56,8 +56,6 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
     img = test_img #[:,:, 0]
     mask = np.asarray(predicted_img==wing_class, dtype=int) #0s and 1s
 
-    print(f"NP.UNIQUE(MASK): {np.unique(mask)}")
-
     y_coords = []
     x_coords = []
     for y in range(0, mask.shape[0]):
@@ -88,9 +86,7 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
       maxx += 10
 
     #crop image down to segmented wings
-    print(f"cropping img to {miny}:{maxy}, {minx}:{maxx} for wing class {wing_class}")
     cropped_result = img[miny:maxy, minx:maxx, :]
-    print(f"cropped result dim for wing class {wing_class}: {cropped_result.shape}")
     cropped_result_resized = cv2.resize(cropped_result, cropped_dim, interpolation=cv2.INTER_CUBIC) #resize to provided dimensions
 
     #store results in dictionary {wing_class: cropped_image}
@@ -103,8 +99,8 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--image_dataset_path", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
-    parser.add_argument("--mask_dataset_path", required=True, help="Directory containing masks for images.")
+    parser.add_argument("--images", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
+    parser.add_argument("--masks", required=True, help="Directory containing masks for images.")
     parser.add_argument("--output_folder", required=True, help="Directory where we should save the cropped wings to.")
     
     return parser.parse_args()
@@ -114,11 +110,11 @@ def main():
     args = parse_args()
 
     # load in our images
-    image_dataset_folder = args.image_dataset_path + '/*'
+    image_dataset_folder = args.images + '/*'
     dataset_images, image_filepaths = load_dataset_images(image_dataset_folder, color_option=1)
 
     #load in our masks
-    mask_dataset_folder = args.mask_dataset_path + '/*'
+    mask_dataset_folder = args.masks + '/*'
     dataset_masks, mask_filepaths = load_dataset_images(mask_dataset_folder)
     
     #create a dataframe to store all metadata associated with predicted masks
@@ -137,9 +133,6 @@ def main():
     errors = []
     for (image, mask), fp in zip(zip(dataset_images, dataset_masks), image_filepaths):   
         #crop + extract any existing wings
-        print(f"Image shape: {image.shape}")
-        print(f"Mask shape: {mask.shape}\n")
-
         cropped_wings, cropped_wings_resized = crop_wings(image, mask)
 
         #save each individual wing with a traceable name to the source image 

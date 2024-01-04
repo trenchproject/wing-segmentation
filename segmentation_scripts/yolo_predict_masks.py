@@ -1,5 +1,6 @@
 import os
 import glob
+import wget
 import pandas as pd
 import numpy as np
 import torch
@@ -47,9 +48,12 @@ def load_dataset_images(dataset_path, color_option=0):
     return dataset_images, image_filepaths
 
 
-def get_yolo_model(checkpoint_path):
+def get_yolo_model():
     '''Download trained yolo v8 model from huggingface and load in weights'''
-    model = YOLO(checkpoint_path)
+    model_url = "https://huggingface.co/imageomics/butterfly_segmentation_yolo_v8/resolve/main/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
+    checkpoint = wget.download(model_url)
+    print(f'CHECKPOINT: {checkpoint}')
+    model = YOLO(checkpoint)
     return model
 
 
@@ -99,10 +103,9 @@ def get_mask(r):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
-    parser.add_argument("--main_folder", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
-    parser.add_argument("--segmentation_csv", required=False, default = 'segmentation_info.csv', help="Path to the csv created containing \
+    # parser.add_argument("--output_folder", required=True, help="Folder to save the masks into.")
+    parser.add_argument("--segmentation_csv", required=False, default = 'dataset_segmentation_info.csv', help="Path to the csv created containing \
                         which segmentation classes are present in each image's predicted mask.")
-    # parser.add_argument("--model_save_path", required=True, default = 'multiclass_unet.hdf5', help="Directory containing all folders with original size images.")
     return parser.parse_args()
 
 
@@ -110,15 +113,16 @@ def main():
     args = parse_args()
 
     # Load in our images that we need to get masks for
-    dataset_folder = args.dataset + '/*' #'/content/drive/MyDrive/annotation_data/jiggins/jiggins_data_256_256/*'
+    dataset_folder = args.dataset + '/*'
     dataset_images, image_filepaths = load_dataset_images(dataset_folder)
 
     # Main folder name is used to create a new directory under a modified version of the original folder name
-    folder_name = args.main_folder
+    # folder_name = args.output_folder
 
     # Get Model
-    ckpt='/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-segmentation/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt'
-    model = get_yolo_model(ckpt)
+    # ckpt='/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-segmentation/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt'
+    # model = get_yolo_model(ckpt)
+    model = get_yolo_model()
 
     # Create a dataframe to store all metadata associated with predicted masks
     classes = {0: 'background',
@@ -151,18 +155,21 @@ def main():
         print('__CUDA Device Total Memory [GB]:',torch.cuda.get_device_properties(0).total_memory/1e9)
 
     # Predict masks on all our images
-    i=0
     results = model.predict(image_filepaths, verbose=False)
+    
+    # Go through results and build masks where each segmented item is encoded with its class ID as pixel values
+    i=0
     for r, fp in zip(results, image_filepaths):
         #get the mask with category id's as pixel values
         mask = get_mask(r) 
         
-        #save the entire predicted mask under its own folder
-        mask_path = fp.replace(folder_name, f'{folder_name}_masks')
-        mask_path = mask_path.replace(f".{fp.split('.')[-1]}", "_mask.png")
-        # mask_path = mask_path.replace('.png', '_mask.png')
-        mask_fn = "/" + mask_path.split('/')[-1]
-        mask_folder = mask_path.replace(mask_fn, "")
+        #create the path to which the mask will be saved, replicating the folder + naming structure of the input dataset
+        mask_path = fp.replace(args.dataset, f'{args.dataset}_masks')
+        mask_path = mask_path.replace(f".{fp.split('.')[-1]}", "_mask.png") #replace extension and save mask as a png
+        
+        #create the folder in which the mask will be saved in if it doesn't exist already
+        mask_filename = "/" + mask_path.split('/')[-1] #
+        mask_folder = mask_path.replace(mask_filename, "")
         os.makedirs(mask_folder, exist_ok=True)
         
         #save mask with cv2 to preserve pixel categories
