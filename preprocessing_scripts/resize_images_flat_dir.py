@@ -28,14 +28,12 @@ def resize_images(source_image_folder, resized_image_folder, file_extensions, im
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", required=True, help="Path to folder containing images to resize")
+    parser.add_argument("--source", required=True, help="Path to folder containing images to resize. Ex: /Users/michelleramirez/Documents/butterflies/annotation_data/body_attached")
     parser.add_argument("--output", required=True, help="Path to outut folder where resized images will be stored in")
     parser.add_argument("--resize_dim", required=True, nargs='+', help="(x,y) dimensions to resize all your images into. Input format: --resize_dim 256 256")
     return parser.parse_args()
 
 def main():
-    # body_attached_source = '/Users/michelleramirez/Documents/butterflies/annotation_data/body_attached'
-    # body_attached_resized = '/Users/michelleramirez/Documents/butterflies/annotation_data/images_128_128/body_attached'
     args = parse_args() 
     file_extensions = ['.jpg', '.JPG', '.png', '.JPEG'] #since there are different extensions in our dataset
     
