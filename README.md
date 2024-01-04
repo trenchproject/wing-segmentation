@@ -1,15 +1,15 @@
 # wing-segmentation
 
-This repository contains the scripts necessary to extract the following components using a UNET segmetnation model from butterfly images:
+This repository contains the scripts necessary to extract the following components using a YOLO v8 segmentation model from butterfly images:
 - wings (right forewing, right hindwing, left forewing, left hindwing) 
 - ruler
-- label
+- metadata label
 - color palette
 
 
-## 1. Preprocessing
+## 1. Preprocessing (OPTIONAL. Skip to Step 2 if you don't wish to resize your images)
 
-Before predicting segmentation masks for your images, the images will need to be resized to 256x256. 
+The YOLO model does not require that you resize your images. However, if you wish to resize your images regardless, you can follow the steps below to do so. 
 
 To resize your images, you can use either the `resize_images_flat_dir.py` or the `resize_images_subfolders.py` file in the `preprocessing_scripts` folder. The only difference between the two is the assumed folder structures. Both scripts will create a new directory containing your resized images such that the original images are not overwritten/modified. 
 
@@ -51,46 +51,44 @@ The script `resize_images_subfolders.py` expects your source folder structure to
 
 ```
 
-## 2. Predicting Segmentation Masks
+## 2. Predicting Segmentation Masks with YOLO
 
-After resizing your images to 256 x 256 (required dimensions for trained unet model), you will run the `unet_predict_masks.py` script in the `segmentation_scipts` folder. The result will be a new folder containing all the segmentation masks for each of your images in the input directory.
+To obtain masks for your set of images, run the `yolo_predict_masks.py` script in the `segmentation_scripts` folder. The result will be a new folder containing all the segmentation masks for each of your images in the input directory.
 
-command: 
+Command: 
 
 ```
-python3 unet_predict_masks.py --model_save_path /path/to/unet_butterflies_256_256.hdf5 --dataset_path /path/to/your/256x256/resized/images --main_folder_name name_of_source_image_folder --segmentation_csv /path/where/to/store/segmentation_info.csv
+python3 wing-segmentation/segmentation_scripts/yolo_predict_masks.py --dataset /path/to/your/images --segmentation_csv /path/where/to/store/segmentation_info.csv
 
 ```
 
 Arguments explained: 
 
-`--model_save_path` is the location of where you downloaded and stored the pretrained unet model (you can retrieve the model here: [unet_butterflies_256_256.hdf5](https://huggingface.co/imageomics/butterfly_segmentation_unet/blob/main/unet_butterflies_256_256.hdf5))
+`--dataset` is the full path to your folder containing your images you wish to obtain masks for. (Example: /User/micheller/data/jiggins_256_256)
 
-`--dataset_path` is the full path of where your folder containing your resized images obtained in **step 1**. (example: /User/micheller/data/jiggins_256_256)
-
-`--main_folder_name` is ONLY the name of the source folder containing your resized images, not the full path. (exmaple: jiggins_256_256) 
-
-`--segmentation_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory as this script.)
+`--segmentation_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory from where you run this script.)
 
 ## 3. Using Segmentation Masks to Extract Wings from Images
 
 After obtaining masks for our images, we can crop out the forewings and hindwings by running the following `crop_wings_out.py` script in the `segmentation_scripts` folder:
 
+Command:
+
 ```
-python3 crop_wings_out.py --image_dataset_path /path/to/resized256x256/image/dataset --mask_dataset_path /path/to/segmentation/masks --output_folder /path/to/folder/where/we/store/cropped/wing/results
+python3 wing-segmentation/segmentation_scripts/crop_wings_out.py --images /path/to/butterfly/images --masks /path/to/segmentation/masks --output_folder /path/to/save/cropped/wings/to
 ```
 
 The cropped wing images will be named in this structure: `<original name>_wing_#.png`
 
 The number following `wing` can be mapped as follows:
 
-`2`: right forewing
+`1`: right forewing
 
-`3`: left forewing
+`2`: left forewing
 
-`4`: right hindwing
+`3`: right hindwing
 
-`5`: left hindwing
+`4`: left hindwing
 
 ## 4. Creating seperate wing folders and flipping wings
 
@@ -100,11 +98,12 @@ Commands:
 
 **Create wing folders**
 ```
-python3 landmark_scripts/create_wing_folders.py --input_dir /path/to/folder/where/we/store/cropped/wing/results
+python3 wing-segmentation/landmark_scripts/create_wing_folders.py --input_dir /path/to/folder/where/we/store/cropped/wing/results
 
 ```
 
 **Flip images**
 ```
-python3 landmark_scripts/flip_images_horizontally.py --input_dir /path/to/wing/category/folder
+python3 wing-segmentation/landmark_scripts/flip_images_horizontally.py --input_dir /path/to/wing/category/folder
+
 ```
