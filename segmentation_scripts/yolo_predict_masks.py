@@ -50,9 +50,14 @@ def load_dataset_images(dataset_path, color_option=0):
 
 def get_yolo_model():
     '''Download trained yolo v8 model from huggingface and load in weights'''
-    model_url = "https://huggingface.co/imageomics/butterfly_segmentation_yolo_v8/resolve/main/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
-    checkpoint = wget.download(model_url)
-    print(f'CHECKPOINT: {checkpoint}')
+
+    ## check if we already have the trained yolo checkpoint file
+    if os.path.exists("yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"):
+        checkpoint = "yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
+    else:
+        model_url = "https://huggingface.co/imageomics/butterfly_segmentation_yolo_v8/resolve/main/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
+        checkpoint = wget.download(model_url)
+
     model = YOLO(checkpoint)
     return model
 
