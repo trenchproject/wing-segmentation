@@ -44,11 +44,18 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
     maxx= x_coords[-1]
 
     #get boundaries of segmented mask with some extra room
-    if y_coords[0] > 10 and x_coords[0] > 10:
-      miny -= 10
-      maxy += 10
-      minx -= 10
-      maxx += 10
+    padding = 100
+    if miny >= padding:
+      miny -= padding
+    
+    if minx >= padding:
+      minx -= padding
+    
+    if maxy <= (mask.shape[0] - padding):
+      maxy += padding
+    
+    if maxx <= (mask.shape[1] - padding):
+      maxx += padding
 
     #crop image down to segmented wings
     cropped_result = img[miny:maxy, minx:maxx, :]
@@ -116,9 +123,7 @@ def main():
 
             #save the cropped wings to their path (these images will be resized to cropped_dim)
             try:
-                # cv2.imwrite(cropped_wing_path, cv2.cvtColor(cropped_wing_resized, cv2.COLOR_RGB2BGR))
-
-                ## TEMPORARY: SAVE THE ORIGINAL SIZE (not 256x256)
+                print(f"saving: {cropped_wing_path}")
                 cv2.imwrite(cropped_wing_path, cv2.cvtColor(cropped_wing, cv2.COLOR_RGB2BGR))
             except FileNotFoundError:
                 errors.append(cropped_wing_path)

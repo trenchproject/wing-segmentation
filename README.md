@@ -59,7 +59,6 @@ Command:
 
 ```
 python3 wing-segmentation/segmentation_scripts/yolo_predict_masks.py --dataset /path/to/your/images --segmentation_csv /path/where/to/store/segmentation_info.csv
-
 ```
 
 Arguments explained: 
@@ -99,11 +98,9 @@ Commands:
 **Create wing folders**
 ```
 python3 wing-segmentation/landmark_scripts/create_wing_folders.py --input_dir /path/to/folder/where/we/store/cropped/wing/results
-
 ```
 
 **Flip images**
 ```
 python3 wing-segmentation/landmark_scripts/flip_images_horizontally.py --input_dir /path/to/wing/category/folder
-
 ```
