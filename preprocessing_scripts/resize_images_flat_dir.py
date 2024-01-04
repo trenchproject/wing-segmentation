@@ -6,7 +6,7 @@ import glob
 import os
 
 
-def resize_images(source_image_folder, resized_image_folder, file_extensions=['.jpg'], image_size=(256,256)):
+def resize_images(source_image_folder, resized_image_folder, file_extensions, image_size=(256,256)):
     #create a new folder to save resized images to
     os.makedirs(resized_image_folder, exist_ok=True)
 
