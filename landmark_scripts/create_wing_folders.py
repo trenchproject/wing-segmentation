@@ -6,16 +6,15 @@ import argparse
 import shutil
 
 CLASSES = {0: 'background',
-        1: 'generic',
-        2: 'right_forewing',
-        3: 'left_forewing',
-        4: 'right_hindwing',
-        5: 'left_hindwing',
-        6: 'ruler',
-        7: 'white_balance',
-        8: 'label',
-        9: 'color_card',
-        10: 'body'}
+        1: 'right_forewing',
+        2: 'left_forewing',
+        3: 'right_hindwing',
+        4: 'left_hindwing',
+        5: 'ruler',
+        6: 'white_balance',
+        7: 'label',
+        8: 'color_card',
+        9: 'body'}
 
 
 def get_wing_path(main_folder, img_path):
@@ -62,13 +61,12 @@ def main():
 
     #directory of where all the cropped wings (not seperated by type of wing) are saved
     cropped_wings_dir = args.input_dir
-    # '/Users/michelleramirez/Documents/butterflies/ml-morph/jiggins-image-examples/cropped_wings_256_256/jiggins/jiggins_data_256_256/*'
 
     #create seperate directories for each type of wing, which we will seperate our wing images into
-    right_forewings = args.input_dir + '_right_forewing' #'/Users/michelleramirez/Documents/butterflies/ml-morph/jiggins-image-examples/right_forewing'
-    right_hindwings = args.input_dir + '_right_hindwing' #'/Users/michelleramirez/Documents/butterflies/ml-morph/jiggins-image-examples/right_hindwing'
-    left_forewings  = args.input_dir + '_left_forewing'  #'/Users/michelleramirez/Documents/butterflies/ml-morph/jiggins-image-examples/left_forewing'
-    left_hindwings  = args.input_dir + '_left_hindwing'  #'/Users/michelleramirez/Documents/butterflies/ml-morph/jiggins-image-examples/left_hindwing'
+    right_forewings = args.input_dir + '_right_forewing'
+    right_hindwings = args.input_dir + '_right_hindwing' 
+    left_forewings  = args.input_dir + '_left_forewing'  
+    left_hindwings  = args.input_dir + '_left_hindwing' 
 
     os.makedirs(right_forewings, exist_ok=True)
     os.makedirs(right_hindwings, exist_ok=True)
