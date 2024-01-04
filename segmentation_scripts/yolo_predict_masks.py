@@ -108,7 +108,6 @@ def get_mask(r):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
-    # parser.add_argument("--output_folder", required=True, help="Folder to save the masks into.")
     parser.add_argument("--segmentation_csv", required=False, default = 'dataset_segmentation_info.csv', help="Path to the csv created containing \
                         which segmentation classes are present in each image's predicted mask.")
     return parser.parse_args()
@@ -121,12 +120,7 @@ def main():
     dataset_folder = args.dataset + '/*'
     dataset_images, image_filepaths = load_dataset_images(dataset_folder)
 
-    # Main folder name is used to create a new directory under a modified version of the original folder name
-    # folder_name = args.output_folder
-
     # Get Model
-    # ckpt='/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-segmentation/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt'
-    # model = get_yolo_model(ckpt)
     model = get_yolo_model()
 
     # Create a dataframe to store all metadata associated with predicted masks
