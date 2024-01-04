@@ -50,7 +50,7 @@ def main():
     args = parse_args() 
     data = args.source + '/*'
     data_resized = args.output + '/*'
-    image_size = (int(args.resize_dim[0]), int(args.resize_dim[1])) #(256, 256)
+    image_size = (int(args.resize_dim[0]), int(args.resize_dim[1]))
     file_extensions = ['jpg', 'JPG', 'png', 'JPEG']
     main_folder_name_to_replace = args.main_source_folder_name
 
