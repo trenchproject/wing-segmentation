@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import torch
 import argparse
-import matplotlib.pyplot as plt
 import cv2
 from ultralytics import YOLO
 from skimage.draw import polygon2mask

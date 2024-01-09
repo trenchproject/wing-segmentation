@@ -3,7 +3,6 @@ import glob
 import cv2
 import numpy as np
 
-
 def load_dataset_images(dataset_path, color_option=0):
     '''Load in actual images from filepaths from all subfolders in the provided dataset_path'''
 

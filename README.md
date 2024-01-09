@@ -74,8 +74,17 @@ After obtaining masks for our images, we can crop out the forewings and hindwing
 Command:
 
 ```
-python3 wing-segmentation/segmentation_scripts/crop_wings_out.py --images /path/to/butterfly/images --masks /path/to/segmentation/masks --output_folder /path/to/save/cropped/wings/to
+python3 wing-segmentation/segmentation_scripts/crop_wings_out.py --images /path/to/butterfly/images --masks /path/to/segmentation/masks --output_folder /path/to/save/cropped/wings/to --pad <pixels to extend crop window by>
 ```
+Arguments explained: 
+
+`--images` is the path to the folder containing the set of images we got masks for in step 2.
+
+`--masks` is the path to the folder created during step 2 containing the segmentation masks for the images.
+
+`--output_folder` is the name of the folder you want to give to the folder that will contain the cropped wings.
+
+`--pad` is the number of pixels to use as padding and extend the crop window by when cropping out wings. This argument is optional with a default value of 50. If the individual cropped wings are including neighboring wings too much for your liking, reduce this number to get a tighter window/crop around the wing. If the individual wing is getting cut off in the crop, increase this number. 
 
 The cropped wing images will be named in this structure: `<original name>_wing_#.png`
 

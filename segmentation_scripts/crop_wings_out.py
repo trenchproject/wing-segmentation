@@ -2,14 +2,12 @@ import os
 import glob
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
 import pandas as pd
 import argparse
 
 from utils import load_dataset_images
 
-
-def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
+def crop_wings(test_img, predicted_img, padding=50, cropped_dim=(256, 256)):
   '''Goes through the predicted mask of an image and crops down the original image to each of the 4 available wings
   based on the predicted segmented wing mask'''
 
@@ -44,7 +42,6 @@ def crop_wings(test_img, predicted_img, cropped_dim=(256, 256)):
     maxx= x_coords[-1]
 
     #get boundaries of segmented mask with some extra room
-    padding = 100
     if miny >= padding:
       miny -= padding
     
@@ -73,6 +70,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--images", required=True, help="Directory containing images we want to predict masks for. ex: /User/micheller/data/jiggins_256_256")
     parser.add_argument("--masks", required=True, help="Directory containing masks for images.")
+    parser.add_argument("--pad", required=False, default=50, type=int, help="Padding in pixels to add around the wing when cropping out.")
     parser.add_argument("--output_folder", required=True, help="Directory where we should save the cropped wings to.")
     
     return parser.parse_args()
@@ -105,7 +103,7 @@ def main():
     errors = []
     for (image, mask), fp in zip(zip(dataset_images, dataset_masks), image_filepaths):   
         #crop + extract any existing wings
-        cropped_wings, cropped_wings_resized = crop_wings(image, mask)
+        cropped_wings, cropped_wings_resized = crop_wings(image, mask, args.pad)
 
         #save each individual wing with a traceable name to the source image 
         #(ex. erato_0001_wing_2.png denotes the image contains the right forewing for erato_0001.png)
