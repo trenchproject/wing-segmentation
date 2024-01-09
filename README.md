@@ -7,6 +7,23 @@ This repository contains the scripts necessary to extract the following componen
 - color palette
 
 
+## Setting up your environment
+
+1. Create conda environment
+```
+conda create -n yolo_segmentation python=3.10
+```
+
+2. Activate environment
+```
+conda activate yolo_segmentation
+```
+
+3. Install requirements
+```
+pip install -r requirements.txt
+```
+
 ## 1. Preprocessing (OPTIONAL. Skip to Step 2 if you don't wish to resize your images)
 
 The YOLO model does not require that you resize your images. However, if you wish to resize your images regardless, you can follow the steps below to do so. 
