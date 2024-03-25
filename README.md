@@ -1,4 +1,4 @@
-# wing-segmentation
+# Lepidoptera Wing Segmentation
 
 This repository contains the scripts necessary to extract the following components using a YOLO v8 segmentation model from butterfly images:
 - wings (right forewing, right hindwing, left forewing, left hindwing) 
