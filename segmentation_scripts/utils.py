@@ -35,6 +35,13 @@ def load_dataset_images(dataset_path, color_option=0):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         dataset_images.append(img)
 
-    #Convert list to array for machine learning processing
-    dataset_images = np.array(dataset_images)
+    try:
+        # For improved performance and memory usage, try to convert the list of images to a numpy array
+        dataset_images = np.array(dataset_images)
+    except ValueError as e:
+        # But data may be inhomogeneous depending on preprocessing
+        print(f"Error converting images to numpy array: {e}")
+        print("Returning list of images instead.")
+        return dataset_images, image_filepaths
+    
     return dataset_images, image_filepaths
