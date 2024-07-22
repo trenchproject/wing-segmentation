@@ -9,6 +9,9 @@ The images used for training this model were sourced from the following collecti
 
 394 dorsal images of Heliconius butterflies were sourced from this subset of Chris Jiggins' research group's collection from the University of Cambridge.
 
+![species distribution chart for CB data colored by label](https://github.com/user-attachments/assets/0634d0c9-ab08-4f0c-868a-7c34a52ab513)
+
+
 ### How to Access*
 
 Install the [cautious-robot](https://github.com/Imageomics/cautious-robot) package.
@@ -44,6 +47,10 @@ This will download all images into subfolders based on their label (in this case
 ## [Smithsonian Tropical Research Institute (STRI) Data](https://huggingface.co/datasets/imageomics/STRI-Samples)
 
 This is a subset of images of butterfly wings collected by [Owen McMillan](https://stri.si.edu/scientist/owen-mcmillan) and members of his lab at the [Smithsonian Tropical Research Institute (STRI)](https://stri.si.edu/).
+
+
+![species distribution chart for STRI data colored by label](https://github.com/user-attachments/assets/92da2996-b4f0-462a-b666-4ea715669f3b)
+
 
 ### How to Access*
 
