@@ -120,8 +120,8 @@ The `crop_wings_out.py` file will produce images like those below:
 
 ![rfw](readme_images/CAM016015_d_rfw.png)
 ![lfw](readme_images/CAM016015_d_lfw.png)
-![rhw](readme_images/CAM016015_d_rhw.png)
-![lww](readme_images/CAM016015_d_lhw.png)
+![rhw](readme_images/CAM016019_d_rhw.png)
+![lww](readme_images/CAM016022_d_lhw.png)
 
 
 Arguments explained: 
