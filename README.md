@@ -118,10 +118,11 @@ python3 wing-segmentation/segmentation_scripts/crop_wings_out.py --images /path/
 
 The `crop_wings_out.py` file will produce images like those below:
 
-![lfw](readme_images/CAM016015_d_lfw.png)
-![rfw](readme_images/CAM016015_d_rfw.png)
-![lww](readme_images/CAM016022_d_lhw.png)
-![rhw](readme_images/CAM016019_d_rhw.png)
+![lfw](readme_images/CAM016015_d_lfw.png)<img src="readme_images/CAM016015_d_lfw.png" alt="Alt text" width="100" height="100">
+![rfw](readme_images/CAM016015_d_rfw.png)<img src="readme_images/CAM016015_d_rfw.png" alt="Alt text" width="100" height="100">
+![lww](readme_images/CAM016022_d_lhw.png)<img src="readme_images/CAM016022_d_lhw.png" alt="Alt text" width="100" height="100">
+![rhw](readme_images/CAM016019_d_rhw.png)<img src="readme_images/CAM016019_d_rhw.png" alt="Alt text" width="100" height="100">
+
 
 
 Arguments explained: 
