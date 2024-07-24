@@ -9,7 +9,7 @@ import cv2
 from ultralytics import YOLO
 from skimage.draw import polygon2mask
 
-from utils import load_dataset_images
+from utils import load_dataset_images, read_image_paths
 
 def get_yolo_model():
     '''Download trained yolo v8 model from huggingface and load in weights'''
@@ -57,16 +57,25 @@ def get_mask(r):
         #layer the current segment into one collective mask
         segmented_img_full += mask
 
-        for y in range(0, segmented_img_full.shape[0]):
-            for x in range(0, segmented_img_full.shape[1]):
-                #if there masks overlap at y,x
-                if mask[y, x] != 0 and segmented_img_full[y,x] != 0:
-                    #replace that value to avoid pixel values not in our id2label mapping
-                    segmented_img_full[y,x] = mask[y,x]
+        # for y in range(0, segmented_img_full.shape[0]):
+        #     for x in range(0, segmented_img_full.shape[1]):
+        #         #if there masks overlap at y,x
+        #         if mask[y, x] != 0 and segmented_img_full[y,x] != 0:
+        #             #replace that value to avoid pixel values not in our id2label mapping
+        #             segmented_img_full[y,x] = mask[y,x]
+        
+        # Create a boolean mask where current mask and aggregation of masks are nonempty
+        overlapping_pixels = (mask != 0) & (segmented_img_full != 0)
+
+        # Assign the values in the current mask at the overlapping pixels (arbitrary choice)
+        segmented_img_full[overlapping_pixels] = mask[overlapping_pixels]
     
     print(predicted_class_ids)
     return segmented_img_full
         
+def batch_indices_np(total, batch_size):
+    indices = np.arange(total)
+    return np.array_split(indices, np.ceil(total / batch_size))
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -80,8 +89,10 @@ def main():
     args = parse_args()
 
     # Load in our images that we need to get masks for
+    print('Loading image paths...')
     dataset_folder = args.dataset + '/*'
-    dataset_images, image_filepaths = load_dataset_images(dataset_folder)
+    image_filepaths = read_image_paths(dataset_folder) #just read in image filepaths since model handles converting path to image
+    print(f'Number of filepaths: {len(image_filepaths)}')
 
     # Get Model
     model = get_yolo_model()
@@ -117,43 +128,52 @@ def main():
         print('__CUDA Device Total Memory [GB]:',torch.cuda.get_device_properties(0).total_memory/1e9)
 
     # Predict masks on all our images
-    results = model.predict(image_filepaths, verbose=False)
-    
-    # Go through results and build masks where each segmented item is encoded with its class ID as pixel values
+    print("Predicting masks with YOLO for all images...")
+    # print('with resizing at prediction ONLY and faster mask overlap check method')
     i=0
-    for r, fp in zip(results, image_filepaths):
-        #get the mask with category id's as pixel values
-        mask = get_mask(r) 
-        
-        #create the path to which the mask will be saved, replicating the folder + naming structure of the input dataset
-        mask_path = fp.replace(args.dataset, f'{args.dataset}_masks')
-        mask_path = mask_path.replace(f".{fp.split('.')[-1]}", "_mask.png") #replace extension and save mask as a png
-        
-        #create the folder in which the mask will be saved in if it doesn't exist already
-        mask_filename = "/" + mask_path.split('/')[-1] #
-        mask_folder = mask_path.replace(mask_filename, "")
-        os.makedirs(mask_folder, exist_ok=True)
-        
-        #save mask with cv2 to preserve pixel categories
-        print(f"Mask path:{mask_path}")
-        cv2.imwrite(mask_path, mask)
 
-        #enter relevant segmentation data for the image in our dataframe
-        classes_in_image = np.unique(mask)
-        classes_not_in_image = set(classes.keys()) ^ set(classes_in_image)
-        dataset_segmented.loc[i, 'image'] = fp
-        
-        #enter `1` for all segmentation classes that appear in our mask
-        for val in classes_in_image:
-            pred_class = classes[val]
-            dataset_segmented.loc[i, pred_class] = 1 #class exists in segmentation mask
+    # feed in batch of 32 images at a time otherwise prediction gets overloaded
+    batches = batch_indices_np(len(image_filepaths), 32)
+    for batch in batches: 
+        print('Current batch:', batch)
+        image_fp_batch = [image_filepaths[i] for i in batch]
+        results = model.predict(image_fp_batch, verbose=False, retina_masks=True) #imgsz=(256,256)
+    
+        # Go through results and build masks where each segmented item is encoded with its class ID as pixel values
+        print("Saving masks obtained from YOLO...")
+        for r, fp in zip(results, image_fp_batch):
+            #get the mask with category id's as pixel values
+            mask = get_mask(r) 
+            
+            #create the path to which the mask will be saved, replicating the folder + naming structure of the input dataset
+            mask_path = fp.replace(args.dataset, f'{args.dataset}_masks')
+            mask_path = mask_path.replace(f".{fp.split('.')[-1]}", "_mask.png") #replace extension and save mask as a png
+            
+            #create the folder in which the mask will be saved in if it doesn't exist already
+            mask_filename = "/" + mask_path.split('/')[-1] #
+            mask_folder = mask_path.replace(mask_filename, "")
+            os.makedirs(mask_folder, exist_ok=True)
+            
+            #save mask with cv2 to preserve pixel categories
+            print(f"Mask path:{mask_path}")
+            cv2.imwrite(mask_path, mask)
 
-        #enter `0` for all segmentation classes that were not predicted
-        for not_pred_val in classes_not_in_image:
-            not_pred_class = classes[not_pred_val]
-            dataset_segmented.loc[i, not_pred_class] = 0 #class does not exist in segmentation mask
+            #enter relevant segmentation data for the image in our dataframe
+            classes_in_image = np.unique(mask)
+            classes_not_in_image = set(classes.keys()) ^ set(classes_in_image)
+            dataset_segmented.loc[i, 'image'] = fp
+            
+            #enter `1` for all segmentation classes that appear in our mask
+            for val in classes_in_image:
+                pred_class = classes[val]
+                dataset_segmented.loc[i, pred_class] = 1 #class exists in segmentation mask
 
-        i += 1
+            #enter `0` for all segmentation classes that were not predicted
+            for not_pred_val in classes_not_in_image:
+                not_pred_class = classes[not_pred_val]
+                dataset_segmented.loc[i, not_pred_class] = 0 #class does not exist in segmentation mask
+
+            i += 1
 
     # Save csv containing information about segmentation masks per each image
     dataset_segmented.to_csv(args.segmentation_csv, index=False)
