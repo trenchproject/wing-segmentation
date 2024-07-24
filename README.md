@@ -1,6 +1,6 @@
 # Lepidoptera Wing Segmentation
 
-This repository contains the scripts necessary to extract the following components using a YOLO v8 segmentation model from butterfly images:
+This repository contains the scripts necessary to extract the following components using a YOLO v8 object detector and Meta's Segment Anything (SAM) model from butterfly images:
 - wings (right forewing, right hindwing, left forewing, left hindwing) 
 - ruler
 - metadata label
@@ -84,7 +84,29 @@ Arguments explained:
 
 `--segmentation_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory from where you run this script.)
 
-## 3. Using Segmentation Masks to Extract Wings from Images
+## 3. Removing background and background items from your wing images
+
+The `segmentation_scripts` folder contains python scripts to help you remove the background of your images using the segmentation masks from our YOLO-SAM model. 
+
+**Remove background only and replace with black background**
+
+```
+python3 wing-segmentation/segmentation_scripts/remove_background_black.py --image_dataset_path <path> --mask_dataset_path <path> --main_folder_name <folder_name>
+```
+
+**Remove background only and replace with white background**
+
+```
+python3 wing-segmentation/segmentation_scripts/remove_background_white.py --image_dataset_path <path> --mask_dataset_path <path> --main_folder_name <folder_name>
+```
+
+**Remove background and all items that are not wings. Wings are placed against a white background**
+
+```
+python3 wing-segmentation/segmentation_scripts/segment_all_wings_white.py --image_dataset_path <path> --mask_dataset_path <path> --main_folder_name <folder_name>
+```
+
+## 4. Using Segmentation Masks to Extract Wings from Images
 
 After obtaining masks for our images, we can crop out the forewings and hindwings by running the following `crop_wings_out.py` script in the `segmentation_scripts` folder:
 
@@ -93,6 +115,15 @@ Command:
 ```
 python3 wing-segmentation/segmentation_scripts/crop_wings_out.py --images /path/to/butterfly/images --masks /path/to/segmentation/masks --output_folder /path/to/save/cropped/wings/to --pad <pixels to extend crop window by>
 ```
+
+The `crop_wings_out.py` file will produce images like those below:
+
+![rfw](readme_images/CAM016015_d_rfw.png)
+![lfw](readme_images/CAM016015_d_lfw.png)
+![rhw](readme_images/CAM016015_d_rhw.png)
+![lww](readme_images/CAM016015_d_lhw.png)
+
+
 Arguments explained: 
 
 `--images` is the path to the folder containing the set of images we got masks for in step 2.
@@ -115,7 +146,7 @@ The number following `wing` can be mapped as follows:
 
 `4`: left hindwing
 
-## 4. Creating seperate wing folders and flipping wings
+## 5. Creating seperate wing folders and flipping wings
 
 The `landmark_scripts` folder contains python scripts to sort cropped wings into wing folders and flip images horizontally if needed.
 

@@ -11,7 +11,7 @@ from utils import load_dataset_images
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_dataset_path", required=True, help="Directory containing images we have masks for. ex: /User/micheller/data/jiggins_256_256")
-    parser.add_argument("--mask_dataset_path", required=True, help="Directory containing masks for images.")
+    parser.add_argument("--mask_dataset_path", required=True, help="Directory containing masks for images. ex: /User/micheller/data/jiggins_256_256_masks")
     parser.add_argument("--main_folder_name", required=True, help="JUST the main FOLDER NAME containing all subfolders/images. ex: jiggins_256_256")
     
     return parser.parse_args()
