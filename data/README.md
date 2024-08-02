@@ -7,7 +7,7 @@ The images used for training this model were sourced from the following collecti
 
 ## [Heliconius Collection (Cambridge Butterfly)](https://huggingface.co/datasets/imageomics/Heliconius-Collection_Cambridge-Butterfly)
 
-394 dorsal images of Heliconius butterflies were sourced from this subset of Chris Jiggins' research group's collection from the University of Cambridge.
+394 dorsal images of _Heliconius erato_ and _Heliconius melpomene_ butterflies were sourced from this subset of Chris Jiggins' research group's collection from the University of Cambridge.
 
 ![species distribution chart for CB data colored by label](https://github.com/user-attachments/assets/0634d0c9-ab08-4f0c-868a-7c34a52ab513)
 
@@ -28,6 +28,10 @@ Full bibtex citations are provided in [Heliconius_collection_cambridge.bib](/hel
 
 ## [Monteiro Data](https://lepdata.org/)
 
+Collection of 199 full body images of 105 species of butterflies across 16 genera from the Monteiro Lab (a subset of their collection).
+
+![Genus distribution chart for Monteiro data colored by label](https://github.com/user-attachments/assets/8c1c4e16-aa36-44db-9bd3-48e33d791c64)
+
 
 ### How to Access*
 
@@ -46,7 +50,7 @@ This will download all images into subfolders based on their label (in this case
 
 ## [Smithsonian Tropical Research Institute (STRI) Data](https://huggingface.co/datasets/imageomics/STRI-Samples)
 
-This is a subset of images of butterfly wings collected by [Owen McMillan](https://stri.si.edu/scientist/owen-mcmillan) and members of his lab at the [Smithsonian Tropical Research Institute (STRI)](https://stri.si.edu/).
+This is a subset of 207 images of butterfly wings collected by [Owen McMillan](https://stri.si.edu/scientist/owen-mcmillan) and members of his lab at the [Smithsonian Tropical Research Institute (STRI)](https://stri.si.edu/). There are 11 speices represented, primarily from the genus Heliconius, but also including the following genera: Junonia, Eueides, Neruda, and Dryas.
 
 
 ![species distribution chart for STRI data colored by label](https://github.com/user-attachments/assets/92da2996-b4f0-462a-b666-4ea715669f3b)
