@@ -47,6 +47,20 @@ This will download all images into subfolders based on their label (in this case
 
 ### Citation
 
+Images were accessed from the [Monteiro Lab website](https://lepdata.org/monteiro/).
+
+```
+@article{article,
+  author = {Silveira, Margarida and Monteiro, Antonia},
+  year = {2008},
+  month = {11},
+  pages = {130-6},
+  title = {Automatic recognition and measurement of butterfly eyespot patterns},
+  volume = {95},
+  journal = {Bio Systems},
+  doi = {10.1016/j.biosystems.2008.09.004}
+}
+```
 
 ## [Smithsonian Tropical Research Institute (STRI) Data](https://huggingface.co/datasets/imageomics/STRI-Samples)
 
