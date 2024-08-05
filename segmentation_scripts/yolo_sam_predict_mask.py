@@ -9,6 +9,7 @@ from ultralytics import YOLO
 from segment_anything import sam_model_registry, SamPredictor
 import torch, torchvision
 import argparse
+import wget
 
 from utils import load_dataset_images, read_image_paths
 
@@ -52,6 +53,12 @@ def get_sam_model(device):
     '''Get the SAM VIT l Model'''
     model_type = "vit_l"
     sam_checkpoint = "/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/detection-segmentation/sam_vit_l_0b3195.pth"
+    #download model file is not already downloaded
+    if not os.path.exists(sam_checkpoint):
+        # download from huggingface
+        model_url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth"
+        sam_checkpoint = wget.download(model_url)
+
     sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
     sam.to(device=device)
     return SamPredictor(sam)
@@ -63,9 +70,9 @@ def get_yolo_model():
     if os.path.exists("/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-detection/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt"):
         checkpoint = "/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-detection/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt"
     else:
-        print('Need to upload model to HuggingFace')
-        # model_url = "https://huggingface.co/imageomics/butterfly_segmentation_yolo_v8/resolve/main/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
-        # checkpoint = wget.download(model_url)
+        # download from huggingface
+        model_url = "https://huggingface.co/imageomics/butterfly_segmentation_yolo_v8/resolve/main/yolo_detection_8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
+        checkpoint = wget.download(model_url)
 
     model = YOLO(checkpoint)
     return model
