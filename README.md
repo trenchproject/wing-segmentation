@@ -68,21 +68,21 @@ The script `resize_images_subfolders.py` expects your source folder structure to
 
 ```
 
-## 2. Predicting Segmentation Masks with YOLO
+## 2. Getting Segmentation Masks using YOLO Detection + SAM Model
 
-To obtain masks for your set of images, run the `yolo_predict_masks.py` script in the `segmentation_scripts` folder. The result will be a new folder containing all the segmentation masks for each of your images in the input directory.
+To obtain masks for your set of images, run the `yolo_sam_predict_mask.py` script in the `segmentation_scripts` folder. The result will be a new folder containing all the segmentation masks for each of your images in the input directory.
 
 Command: 
 
 ```
-python3 wing-segmentation/segmentation_scripts/yolo_predict_masks.py --dataset /path/to/your/images --segmentation_csv /path/where/to/store/segmentation_info.csv
+python3 wing-segmentation/segmentation_scripts/yolo_predict_masks.py --dataset /path/to/your/images --mask_csv /path/where/to/store/segmentation_info.csv
 ```
 
 Arguments explained: 
 
 `--dataset` is the full path to your folder containing your images you wish to obtain masks for. (Example: /User/micheller/data/jiggins_256_256)
 
-`--segmentation_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory from where you run this script.)
+`--mask_csv` is the path location at which you want to store the csv that gets created detailing which segmentation categories exist in the mask generated for each image. (Optional. Default segmentation.csv will be saved in the same directory from where you run this script.)
 
 ## 3. Removing background and background items from your wing images
 
@@ -103,7 +103,7 @@ python3 wing-segmentation/segmentation_scripts/remove_background_white.py --imag
 **Remove background and all items that are not wings. Wings are placed against a white background**
 
 ```
-python3 wing-segmentation/segmentation_scripts/segment_all_wings_white.py --image_dataset_path <path> --mask_dataset_path <path> --main_folder_name <folder_name>
+python3 wing-segmentation/segmentation_scripts/select_wings.py --images <path> --masks <path> --main_folder <folder_name>
 ```
 
 ## 4. Using Segmentation Masks to Extract Wings from Images
