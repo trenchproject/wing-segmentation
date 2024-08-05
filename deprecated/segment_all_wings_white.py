@@ -44,14 +44,14 @@ def main():
     print('Reading in images...')
     image_dataset_folder = args.image_dataset_path + '/*'
     # dataset_images, image_filepaths = load_dataset_images(image_dataset_folder, 1)
-    image_filepaths = read_image_paths(image_dataset_folder)[0:5]
+    image_filepaths = read_image_paths(image_dataset_folder)
 
 
     #load in our masks
     print('Reading in masks...')
     mask_dataset_folder = args.mask_dataset_path + '/*'
     # dataset_masks, mask_filepaths = load_dataset_images(mask_dataset_folder)
-    mask_filepaths = read_image_paths(mask_dataset_folder)[0:5]
+    mask_filepaths = read_image_paths(mask_dataset_folder)
 
     #create batches of 32
     batches = batch_indices_np(len(image_filepaths), 32)

@@ -51,8 +51,8 @@ def main():
     
     print('Removing everything but forewings and hindwings...')
     errors = []
-    for i, batch in enumerate(batches[76:]):
-        print(f'Batch {i+76}: ', batch)
+    for i, batch in enumerate(batches):
+        print(f'Batch {i}: ', batch)
         img_batch_fps = [image_filepaths[i] for i in batch]
         mask_batch_fps = [mask_filepaths[i] for i in batch]
 
