@@ -1,15 +1,16 @@
 # Data used for Wing-Segmentation
 
 The images used for training this model were sourced from the following collections:
-1. [Heliconius Collection (Cambridge Butterfly)](#heliconius-collection-(cambridge-butterfly))
+1. [Heliconius Collection (Cambridge Butterfly)](#heliconius-collection-cambridge-butterfly)
 2. [Monteiro Dataset](#monteiro-data)
-3. [Smithsonian Tropical Research Institute (STRI) Data](#smithsonian-tropical-research-institute-(stri)-data)
+3. [Smithsonian Tropical Research Institute (STRI) Data](#smithsonian-tropical-research-institute-stri-data)
 
 ## [Heliconius Collection (Cambridge Butterfly)](https://huggingface.co/datasets/imageomics/Heliconius-Collection_Cambridge-Butterfly)
 
 394 dorsal images of _Heliconius erato_ and _Heliconius melpomene_ butterflies were sourced from this subset of Chris Jiggins' research group's collection from the University of Cambridge.
 
-![species distribution chart for CB data colored by label](https://github.com/user-attachments/assets/0634d0c9-ab08-4f0c-868a-7c34a52ab513)
+![species distribution chart for CB data colored by label](https://github.com/user-attachments/assets/cee0dd24-00e8-46fd-93d0-02804b557fdf)
+
 
 
 ### How to Access*
@@ -30,7 +31,7 @@ Full bibtex citations are provided in [Heliconius_collection_cambridge.bib](/hel
 
 Collection of 199 full body images of 105 species of butterflies across 16 genera from the Monteiro Lab (a subset of their collection).
 
-![Genus distribution chart for Monteiro data colored by label](https://github.com/user-attachments/assets/8c1c4e16-aa36-44db-9bd3-48e33d791c64)
+![Genus distribution chart for Monteiro data colored by label](https://github.com/user-attachments/assets/3075f07e-6166-48f8-8a31-53eec4d4a220)
 
 
 ### How to Access*
@@ -64,21 +65,21 @@ Images were accessed from the [Monteiro Lab website](https://lepdata.org/monteir
 
 ## [Smithsonian Tropical Research Institute (STRI) Data](https://huggingface.co/datasets/imageomics/STRI-Samples)
 
-This is a subset of 207 images of butterfly wings collected by [Owen McMillan](https://stri.si.edu/scientist/owen-mcmillan) and members of his lab at the [Smithsonian Tropical Research Institute (STRI)](https://stri.si.edu/). There are 11 speices represented, primarily from the genus Heliconius, but also including the following genera: Junonia, Eueides, Neruda, and Dryas.
+This is a subset of 207 images of butterfly wings collected by [Owen McMillan](https://stri.si.edu/scientist/owen-mcmillan) and members of his lab at the [Smithsonian Tropical Research Institute (STRI)](https://stri.si.edu/). There are 13 speices represented, primarily from the genus Heliconius, but also including the following genera: Junonia, Eueides, Neruda, and Dryas.
 
 
-![species distribution chart for STRI data colored by label](https://github.com/user-attachments/assets/92da2996-b4f0-462a-b666-4ea715669f3b)
+![species distribution chart for STRI data colored by label](https://github.com/user-attachments/assets/9b811673-73e0-47d6-830b-91b4af7a92a5)
 
 
 ### How to Access*
 
 These images are available for direct download from the [STRI-Samples Hugging Face Dataset](https://huggingface.co/datasets/imageomics/STRI-Samples).
 
-As with the other two, images should be downloaded into folders based on their labels: `damaged`, `dorsal`, or `incomplete`, and then downsized with [this script]() to 256 x 256.
+As with the other two, images should be downloaded into folders based on their labels: `damaged`, `dorsal`, or `incomplete`, and then downsized with the appropriate script from [`preprocessing_scripts/`](../preprocessing_scripts) to 256 x 256.
 
 ### Citation
 
 Christopher Lawrence, Owen McMillan, Daniel Romero, Carlos Arias. (2023). Smithsonian Tropical Research Institute (STRI) Samples. Hugging Face. https://huggingface.co/datasets/imageomics/STRI-Samples.
 
 
-*Note that all images could be downloaded using the `cautious-robot` package from the combined CSV [`wing_segmentation_images.csv`](/data/wing_segmentation_images.csv); the automated verification of checksums just would not be available.
+*Note that all images could be downloaded using the `cautious-robot` package from the combined CSV [`wing_segmentation_images.csv`](wing_segmentation_images.csv); the automated verification of checksums just would not be available.
