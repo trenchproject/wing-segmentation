@@ -13,7 +13,7 @@ The images used for training this model were sourced from the following collecti
 
 
 
-### How to Access*
+### How to Access[^1]
 
 Install the [cautious-robot](https://github.com/Imageomics/cautious-robot) package.
 
@@ -34,7 +34,7 @@ Collection of 199 full body images of 105 species of butterflies across 16 gener
 ![Genus distribution chart for Monteiro data colored by label](https://github.com/user-attachments/assets/3075f07e-6166-48f8-8a31-53eec4d4a220)
 
 
-### How to Access*
+### How to Access[^1]
 
 Install the [cautious-robot](https://github.com/Imageomics/cautious-robot) package.
 
@@ -71,9 +71,9 @@ This is a subset of 207 images of butterfly wings collected by [Owen McMillan](h
 ![species distribution chart for STRI data colored by label](https://github.com/user-attachments/assets/9b811673-73e0-47d6-830b-91b4af7a92a5)
 
 
-### How to Access*
+### How to Access[^1]
 
-These images are available for direct download from the [STRI-Samples Hugging Face Dataset](https://huggingface.co/datasets/imageomics/STRI-Samples).
+These images are available for direct download from the [STRI-Samples Hugging Face Dataset](https://huggingface.co/datasets/imageomics/STRI-Samples). The [wing_seg_stri.csv](wing_seg_stri.csv) corresponds to [metadata.csv](https://huggingface.co/datasets/imageomics/STRI-Samples/blob/main/metadata.csv) in the STRI-Samples Hugging Face repository (`metadata.csv` is the required name for proper display in the dataset viewer on HF).
 
 As with the other two, images should be downloaded into folders based on their labels: `damaged`, `dorsal`, or `incomplete`, and then downsized with the appropriate script from [`preprocessing_scripts/`](../preprocessing_scripts) to 256 x 256.
 
@@ -82,4 +82,4 @@ As with the other two, images should be downloaded into folders based on their l
 Christopher Lawrence, Owen McMillan, Daniel Romero, Carlos Arias. (2024). Smithsonian Tropical Research Institute (STRI) Samples. Hugging Face. https://huggingface.co/datasets/imageomics/STRI-Samples.
 
 
-*Note that all images could be downloaded using the `cautious-robot` package from the combined CSV [`wing_segmentation_images.csv`](wing_segmentation_images.csv); the automated verification of checksums just would not be available.
+[^1]: Note that all images could be downloaded using the `cautious-robot` package from the combined CSV [`wing_segmentation_images.csv`](wing_segmentation_images.csv); the automated verification of checksums just would not be available.
