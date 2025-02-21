@@ -253,7 +253,7 @@ Resizing Options:
 
 Bounding Box Options:
   --bbox-padding BBOX_PADDING
-                        Padding to add to bounding boxes in pixels. Defaults to no padding.
+                        Padding to add to bounding boxes in pixels.
                         (default: None)
 
 Background Removal Options:
