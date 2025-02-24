@@ -71,7 +71,7 @@ def get_yolo_model():
         checkpoint = "/fs/ess/PAS2136/Butterfly/butterfly_image_segmentation/yolo-wing-detection/yolo_models/yolov8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0/weights/best.pt"
     else:
         # download from huggingface
-        model_url = "https://huggingface.co/imageomics/butterfly_segmentation_yolo_v8/resolve/main/yolo_detection_8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
+        model_url = "https://huggingface.co/imageomics/butterfly_detection_yolo/resolve/main/yolo_detection_8m_shear_10.0_scale_0.5_translate_0.1_fliplr_0.0_best.pt"
         checkpoint = wget.download(model_url)
 
     model = YOLO(checkpoint)
@@ -178,7 +178,7 @@ def main():
             i += 1
 
     # Save csv containing information about segmentation masks per each image
-    dataset_segmented.to_csv(args.segmentation_csv, index=False)
+    dataset_segmented.to_csv(args.mask_csv, index=False)
 
     return
 
