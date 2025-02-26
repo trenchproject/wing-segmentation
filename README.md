@@ -1,3 +1,5 @@
+# This is the UW Fork
+
 # Lepidoptera Wing Segmentation
 
 This repository contains the scripts necessary to extract the following components using a YOLO v8 object detector and Meta's Segment Anything (SAM) model from butterfly images:
